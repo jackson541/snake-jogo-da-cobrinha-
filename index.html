@@ -17,12 +17,20 @@
 <body>
     <canvas id='tela' width="20" height="20"></canvas>
 
-    <script>
-        const tela = document.getElementById('tela')
-        const context = tela.getContext('2d')
+    <script type="module">
 
-        context.fillStyle = 'blue'
-        context.fillRect(5, 5, 1, 1)
+        import newEscutarTeclado from './input.js'
+        import newGame from './game.js'
+        import newRenderGame from './renderGame.js'
+
+        const escutarTeclado = newEscutarTeclado(document)
+        const game = newGame()
+        escutarTeclado.subscribe(game.moveSnake)
+
+        const tela = document.getElementById('tela')
+        
+        const renderGame = newRenderGame (tela, game)
+        
 
     </script>
 
