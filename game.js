@@ -19,8 +19,6 @@ export default function newGame (tela) {
         intervalVerify: null,
         valuePart: 3,
         score: 0,
-        nextMove: null,
-        currentMove: null
     }
 
     //regras de negócio e movendo a cobra
@@ -29,98 +27,24 @@ export default function newGame (tela) {
         const moves = {
             ArrowUp (part) {
                 part.y = part.y - 1 < 0 ? tela.height - 1 : part.y - 1
-
-                const partNumber =  parseInt(part.name.substr(part.name.length - 1)) + 1 
-
-                /**
-                 * Se o movimento for da baceça, irá receber o valor de move dela.
-                 * Se não, irá receber o movimento salvo em nextMove
-                 */
-                state.currentMove = partNumber === 1 ? part.move : state.nextMove  
-
-                if (partNumber !== state.valuePart + 1) {
-
-                    /**
-                     * 1 - pega a proxima parte do corp
-                     * 2 - salva o movimento dela para ser repassado para a próxima
-                     * 3 - define o seu movimento como sendo o da parte anterior
-                     * 4 - salva o move da parte atual como ArrowUp
-                     * 5 - pega a função do movimento da próxima parte do corpo
-                     * 6 - realiza o movimento
-                     */
-                    const nextPart = snake.parts['part'.concat(partNumber)]
-                    state.nextMove = nextPart.move 
-                    nextPart.move = state.currentMove 
-                    part.move = 'ArrowUp'
-                    const move = moves[nextPart.move] 
-
-                    move(nextPart)
-                }
-
+                part.move = 'ArrowUp'
                 
 
             },
 
             ArrowDown (part) {
                 part.y = part.y + 1 >= tela.height ? 0 : part.y + 1
-
-                const partNumber =  parseInt(part.name.substr(part.name.length - 1)) + 1
-                
-                state.currentMove = partNumber === 1 ? part.move : state.nextMove  
-
-                if (partNumber !== state.valuePart + 1) {
-                    const nextPart = snake.parts['part'.concat(partNumber)]
-                    state.nextMove = nextPart.move 
-                    nextPart.move = state.currentMove 
-                    part.move = 'ArrowDown'
-                    const move = moves[nextPart.move] 
-
-                    move(nextPart)
-                }
-
-
-                
+                part.move = 'ArrowDown'
             },
 
             ArrowLeft (part) {
                 part.x = part.x - 1 < 0 ? tela.width - 1 : part.x - 1  
-
-                const partNumber =  parseInt(part.name.substr(part.name.length - 1)) + 1 //1
-
-                state.currentMove = partNumber === 1 ? part.move : state.nextMove  
-
-                if (partNumber !== state.valuePart + 1) {
-                    const nextPart = snake.parts['part'.concat(partNumber)]
-                    state.nextMove = nextPart.move 
-                    nextPart.move = state.currentMove 
-                    part.move = 'ArrowLeft'
-                    const move = moves[nextPart.move] 
-
-                    move(nextPart)
-                }
-
-
-                
+                part.move = 'ArrowLeft'
             },
 
             ArrowRight (part) {
                 part.x = part.x + 1 >= tela.width ? 0 : part.x + 1
-
-                const partNumber =  parseInt(part.name.substr(part.name.length - 1)) + 1 
-
-                state.currentMove = partNumber === 1 ? part.move : state.nextMove  
-
-                if (partNumber !== state.valuePart + 1) {
-                    const nextPart = snake.parts['part'.concat(partNumber)]
-                    state.nextMove = nextPart.move 
-                    nextPart.move = state.currentMove 
-                    part.move = 'ArrowRight'
-                    const move = moves[nextPart.move] 
-
-                    move(nextPart)
-                }
-
-                
+                part.move = 'ArrowRight'
             },
         }
 
@@ -133,18 +57,36 @@ export default function newGame (tela) {
             }
         }
 
+        //função para chamar o movimento de cada parte do corpo
+        function setMove (command) {
+            let nextMove 
+            let currentMove = command.part.move 
+            command.move(command.part) 
+
+            for (let index = 1; index <= state.valuePart; index++) {
+                const partId = 'part'.concat(index)
+                const part = snake.parts[partId]
+                nextMove = part.move 
+                part.move = currentMove
+                const move = moves[part.move]
+                move(part)
+                currentMove = nextMove
+            }
+
+        }
+
         
         const move = moves[command.tecla]
         const part = snake.parts['part0']
         
         if (move) {
 
-            move(part)
+            setMove({move, part})
             verifyColisionFruit(part)
 
             clearInterval(state.intervalMove)
             clearInterval(state.intervalVerify)
-            state.intervalMove = setInterval(move, 500, part)
+            state.intervalMove = setInterval(setMove, 500, {move, part})
             state.intervalVerify = setInterval(verifyColisionFruit, 500, part)
 
         }
@@ -197,7 +139,7 @@ export default function newGame (tela) {
                 let aux = {
                     name,
                     x: command.x - 1,
-                    y: command.y1,
+                    y: command.y,
                     move: 'ArrowRight'
                 }
                 return aux
