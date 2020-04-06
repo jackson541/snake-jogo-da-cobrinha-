@@ -23,12 +23,12 @@
         import newGame from './game.js'
         import newRenderGame from './renderGame.js'
 
+        const tela = document.getElementById('tela')
+
         const escutarTeclado = newEscutarTeclado(document)
-        const game = newGame()
+        const game = newGame(tela)
         escutarTeclado.subscribe(game.moveSnake)
 
-        const tela = document.getElementById('tela')
-        
         const renderGame = newRenderGame (tela, game)
         
 

@@ -1,4 +1,4 @@
-export default function newGame () {
+export default function newGame (tela) {
 
     const snake = {
         parts: {
@@ -8,7 +8,10 @@ export default function newGame () {
         }
     }
 
-    const fruit = { x:5, y:6 }
+    //acontecer algum erro na rederização e por isso não consegui deixar apenas como um objeto com x e y
+    const fruits = {
+        'fruit': { x:5, y:6 }
+    }
 
     const state = {
         intervalMove: null,
@@ -22,29 +25,30 @@ export default function newGame () {
         
         const moves = {
             ArrowUp (part) {
-                part.y --
+                part.y = part.y - 1 < 0 ? tela.height - 1 : part.y - 1
                 part.move = 'ArrowUp'
             },
 
             ArrowDown (part) {
-                part.y ++
+                part.y = part.y + 1 >= tela.height ? 0 : part.y + 1
                 part.move = 'ArrowDown'
             },
 
             ArrowLeft (part) {
-                part.x --
+                part.x = part.x - 1 < 0 ? tela.width - 1 : part.x - 1
                 part.move = 'ArrowLeft'
             },
 
             ArrowRight (part) {
-                part.x ++
+                part.x = part.x + 1 >= tela.width ? 0 : part.x + 1
                 part.move = 'ArrowRight'
             },
         }
 
         function verifyColision (command) {
-            if (command.y === fruit.y && command.x === fruit.x) {
-                console.log('colidiu')
+            if (command.y === fruits['fruit'].y && command.x === fruits['fruit'].x) {
+                moveFruit()
+                state.valuePart ++
             }
         }
 
@@ -69,16 +73,16 @@ export default function newGame () {
 
 
     function moveFruit () {
-        fruit = {
-            x: Math.floor( Math.random * 20 ),
-            x: Math.floor( Math.random * 20 )
+        fruits['fruit'] = {
+            x: Math.floor( Math.random() * 20 ),
+            y: Math.floor( Math.random() * 20 )
         }
     }
 
     return {
         moveSnake,
         snake,
-        fruit
+        fruits
     }
 
 }
