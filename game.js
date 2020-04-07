@@ -5,7 +5,6 @@ export default function newGame (tela) {
             'part0': { name:'part0', x: 2, y:2, move: 'ArrowUp' },
             'part1': { name:'part1', x: 2, y:3, move: 'ArrowUp' },
             'part2': { name:'part2', x: 2, y:4, move: 'ArrowUp' },
-            'part3': { name:'part3', x: 2, y:5, move: 'ArrowUp' },
         }
     }
 
@@ -17,8 +16,9 @@ export default function newGame (tela) {
     const state = {
         intervalMove: null,
         intervalVerify: null,
-        valuePart: 3,
+        valuePart: 2,
         score: 0,
+        acceptMove: true
     }
 
     //regras de negócio e movendo a cobra
@@ -53,8 +53,30 @@ export default function newGame (tela) {
                 moveFruit()
                 addPart()
                 state.score ++
-                console.log(state.score)
+                
             }
+        }
+
+        function verifyColisionSnack () {
+            const part0 = snake.parts['part0']
+
+            for (const partdId in snake.parts) {
+                const part = snake.parts[partdId]
+                if ( part.name !== part0.name && part.x === part0.x && part.y === part0.y ) {
+                    endGame()
+                    break
+                }
+            }
+        }
+
+        function setIntervals(command) {
+            state.intervalMove = setInterval(command.func1, 500, command.args1)
+            state.intervalVerify = setInterval(command.func2, 500, command.args2)
+        }
+
+        function destroyIntervals() {
+            clearInterval(state.intervalMove)
+            clearInterval(state.intervalVerify)
         }
 
         //função para chamar o movimento de cada parte do corpo
@@ -73,21 +95,27 @@ export default function newGame (tela) {
                 currentMove = nextMove
             }
 
+            verifyColisionSnack()
+
         }
 
         
         const move = moves[command.tecla]
         const part = snake.parts['part0']
         
-        if (move) {
+        if (move && state.acceptMove) {
 
             setMove({move, part})
             verifyColisionFruit(part)
 
-            clearInterval(state.intervalMove)
-            clearInterval(state.intervalVerify)
-            state.intervalMove = setInterval(setMove, 500, {move, part})
-            state.intervalVerify = setInterval(verifyColisionFruit, 500, part)
+            destroyIntervals()
+
+            setIntervals({
+                func1: setMove,
+                args1: {move, part},
+                func2: verifyColisionFruit,
+                args2: part
+            })
 
         }
         
@@ -103,7 +131,6 @@ export default function newGame (tela) {
     }
 
     function addPart () {
-
         const positions = {
             ArrowUp(command, name) {
                 let aux = {
@@ -158,7 +185,34 @@ export default function newGame (tela) {
 
         state.valuePart ++
 
-        console.log(snake.parts)
+        
+        
+    }
+
+    async function endGame() {
+        /**
+         * delay para resetar os intervals
+         * caso contrário as parts irão continuar os seus movimentos
+         */
+        await setTimeout(null, 50)
+        
+        clearInterval(state.intervalMove)
+        clearInterval(state.intervalVerify)
+
+        snake.parts = {
+            'part0': { name:'part0', x: 2, y:2, move: 'ArrowUp' },
+            'part1': { name:'part1', x: 2, y:3, move: 'ArrowUp' },
+            'part2': { name:'part2', x: 2, y:4, move: 'ArrowUp' },
+        }
+        
+
+        fruits['fruit'] = { x:5, y:6 }
+
+        state.intervalMove = null
+        state.intervalVerify = null
+        state.valuePart = 2
+        state.score = 0
+        //state.acceptMove = true
         
     }
 
