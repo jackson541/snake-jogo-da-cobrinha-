@@ -17,7 +17,9 @@ export default function newGame (tela) {
         intervalMove: null,
         intervalVerify: null,
         valuePart: 2,
-        acceptMove: true
+        dontAccept: null,
+        timer: 500,
+        mode: 'easy'
     }
 
     const score = {
@@ -32,30 +34,32 @@ export default function newGame (tela) {
             ArrowUp (part) {
                 part.y = part.y - 1 < 0 ? tela.height - 1 : part.y - 1
                 part.move = 'ArrowUp'
-                
-
+                state.dontAccept = part.name === 'part0' ? 'ArrowDown' : state.dontAccept
             },
 
             ArrowDown (part) {
                 part.y = part.y + 1 >= tela.height ? 0 : part.y + 1
                 part.move = 'ArrowDown'
+                state.dontAccept = part.name === 'part0' ? 'ArrowUp' : state.dontAccept
             },
 
             ArrowLeft (part) {
                 part.x = part.x - 1 < 0 ? tela.width - 1 : part.x - 1  
                 part.move = 'ArrowLeft'
+                state.dontAccept = part.name === 'part0' ? 'ArrowRight' : state.dontAccept
             },
 
             ArrowRight (part) {
                 part.x = part.x + 1 >= tela.width ? 0 : part.x + 1
                 part.move = 'ArrowRight'
+                state.dontAccept = part.name === 'part0' ? 'ArrowLeft' : state.dontAccept
             },
         }
 
         function verifyColisionFruit (command) {
             if (command.y === fruits['fruit'].y && command.x === fruits['fruit'].x) {
-                moveFruit()
                 addPart()
+                moveFruit()
                 score.current ++
                 
             }
@@ -67,15 +71,10 @@ export default function newGame (tela) {
             for (const partdId in snake.parts) {
                 const part = snake.parts[partdId]
                 if ( part.name !== part0.name && part.x === part0.x && part.y === part0.y ) {
-                    endGame()
+                    endGame(state.mode)
                     break
                 }
             }
-        }
-
-        function setIntervals(command) {
-            state.intervalMove = setInterval(command.func1, 500, command.args1)
-            state.intervalVerify = setInterval(command.func2, 500, command.args2)
         }
 
         function destroyIntervals() {
@@ -107,20 +106,15 @@ export default function newGame (tela) {
         const move = moves[command.tecla]
         const part = snake.parts['part0']
         
-        if (move && state.acceptMove) {
+        if (move && command.tecla !== state.dontAccept) {
 
             setMove({move, part})
             verifyColisionFruit(part)
 
             destroyIntervals()
 
-            setIntervals({
-                func1: setMove,
-                args1: {move, part},
-                func2: verifyColisionFruit,
-                args2: part
-            })
-
+            state.intervalMove = setInterval(setMove, state.timer, {move, part})
+            state.intervalVerify = setInterval(verifyColisionFruit, state.timer, part)
         }
         
 
@@ -193,7 +187,26 @@ export default function newGame (tela) {
         
     }
 
-    async function endGame() {
+    async function endGame(command) {
+
+        const modes = {
+            easy () {
+                state.timer = 500
+            },
+
+            normal () {
+                state.timer = 250
+            },
+
+            hard () {
+                state.timer = 100
+            },
+
+            hardcore () {
+                state.timer = 50
+            }
+        }
+
         /**
          * delay para resetar os intervals
          * caso contrário as parts irão continuar os seus movimentos
@@ -215,15 +228,20 @@ export default function newGame (tela) {
         state.intervalMove = null
         state.intervalVerify = null
         state.valuePart = 2
+        state.dontAccept = null
+        state.mode = command
+
+        const mode = modes[command]
+        mode()
+
         score.best = score.current > score.best ? score.current : score.best
         score.current = 0
-        
-        //state.acceptMove = true
         
     }
 
     return {
         moveSnake,
+        endGame,
         snake,
         fruits,
         score

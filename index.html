@@ -8,6 +8,7 @@
             display: grid;
             grid-template-columns: auto auto auto;
         }
+
         #tela {
             width: 400px;
             height: 400px;
@@ -15,6 +16,10 @@
             image-rendering: crisp-edges;
             image-rendering: pixelated;
             image-rendering: -woz-crisp-edges;
+        }
+
+        p {
+            font-size: 20px
         }
     </style>
 </head>
@@ -24,6 +29,14 @@
     <div id="scores">
         <h1 id="score"></h1>
         <h1 id="best-score"></h1>
+        <p>Obs: a fruta pode aparecer em qualquer lugar, <br> incluse no corpo da cobra!</p>
+        <h2>Modos</h2>
+        <div>
+            <button id="easy">Easy</button>
+            <button id="normal">Normal</button>
+            <button id="hard">Hard</button>
+            <button id="hardcore">Hard Core</button>
+        </div>
     </div>
 
     <script type="module">
@@ -39,6 +52,16 @@
         const escutarTeclado = newEscutarTeclado(document)
         const game = newGame(tela)
         escutarTeclado.subscribe(game.moveSnake)
+
+        const easy = document.getElementById('easy')
+        const normal = document.getElementById('normal')
+        const hard = document.getElementById('hard')
+        const hardcore = document.getElementById('hardcore')
+
+        easy.addEventListener('click', () => (game.endGame('easy')))
+        normal.addEventListener('click', () => (game.endGame('normal')))
+        hard.addEventListener('click', () => (game.endGame('hard')))
+        hardcore.addEventListener('click', () => (game.endGame('hardcore')))
 
         const renderGame = newRenderGame (tela, game, score, bestScore)
         
