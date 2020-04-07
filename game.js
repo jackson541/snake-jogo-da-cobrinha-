@@ -17,8 +17,12 @@ export default function newGame (tela) {
         intervalMove: null,
         intervalVerify: null,
         valuePart: 2,
-        score: 0,
         acceptMove: true
+    }
+
+    const score = {
+        current: 0,
+        best: 0
     }
 
     //regras de negócio e movendo a cobra
@@ -52,7 +56,7 @@ export default function newGame (tela) {
             if (command.y === fruits['fruit'].y && command.x === fruits['fruit'].x) {
                 moveFruit()
                 addPart()
-                state.score ++
+                score.current ++
                 
             }
         }
@@ -211,7 +215,9 @@ export default function newGame (tela) {
         state.intervalMove = null
         state.intervalVerify = null
         state.valuePart = 2
-        state.score = 0
+        score.best = score.current > score.best ? score.current : score.best
+        score.current = 0
+        
         //state.acceptMove = true
         
     }
@@ -219,7 +225,8 @@ export default function newGame (tela) {
     return {
         moveSnake,
         snake,
-        fruits
+        fruits,
+        score
     }
 
 }

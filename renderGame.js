@@ -1,5 +1,8 @@
-export default function newRenderGame (tela, game) {
+export default function newRenderGame (tela, game, score, bestScore) {
     const context = tela.getContext('2d')
+
+    score.innerHTML = 'Score: ' + game.score.current
+    bestScore.innerHTML = 'Best score: ' + game.score.best
 
     context.clearRect(0, 0, 20, 20)
 
@@ -16,6 +19,6 @@ export default function newRenderGame (tela, game) {
     context.fillRect(fruit.x, fruit.y, 1, 1)
 
     requestAnimationFrame(() => {
-        newRenderGame(tela, game)
+        newRenderGame(tela, game, score, bestScore)
     })
 }

@@ -4,18 +4,27 @@
     <meta charset="utf-8">
     <title>Snack</title>
     <style>
+        body {
+            display: grid;
+            grid-template-columns: auto auto auto;
+        }
         #tela {
             width: 400px;
             height: 400px;
             border: 10px solid black;
             image-rendering: crisp-edges;
             image-rendering: pixelated;
-            image-rendering: -woz-crisp-edges
+            image-rendering: -woz-crisp-edges;
         }
     </style>
 </head>
 <body>
+    <span></span>
     <canvas id='tela' width="20" height="20"></canvas>
+    <div id="scores">
+        <h1 id="score"></h1>
+        <h1 id="best-score"></h1>
+    </div>
 
     <script type="module">
 
@@ -24,12 +33,14 @@
         import newRenderGame from './renderGame.js'
 
         const tela = document.getElementById('tela')
+        const score = document.getElementById('score')
+        const bestScore = document.getElementById('best-score')
 
         const escutarTeclado = newEscutarTeclado(document)
         const game = newGame(tela)
         escutarTeclado.subscribe(game.moveSnake)
 
-        const renderGame = newRenderGame (tela, game)
+        const renderGame = newRenderGame (tela, game, score, bestScore)
         
 
     </script>
