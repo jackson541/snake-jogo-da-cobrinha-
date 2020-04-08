@@ -19,6 +19,10 @@ export default function newGame (tela) {
         valuePart: 2,
         dontAccept: null,
         timer: 500,
+        wall: true
+    }
+
+    const modes = {
         mode: 'easy'
     }
 
@@ -32,27 +36,47 @@ export default function newGame (tela) {
         
         const moves = {
             ArrowUp (part) {
-                part.y = part.y - 1 < 0 ? tela.height - 1 : part.y - 1
                 part.move = 'ArrowUp'
                 state.dontAccept = part.name === 'part0' ? 'ArrowDown' : state.dontAccept
+
+                if (state.wall) {
+                    part.y = part.y - 1 < 0 ? tela.height - 1 : part.y - 1
+                } else {
+                    part.y = part.y - 1 < 0 ? endGame(modes.mode) : part.y - 1
+                }
             },
 
             ArrowDown (part) {
-                part.y = part.y + 1 >= tela.height ? 0 : part.y + 1
                 part.move = 'ArrowDown'
                 state.dontAccept = part.name === 'part0' ? 'ArrowUp' : state.dontAccept
+
+                if (state.wall) {
+                    part.y = part.y + 1 >= tela.height ? 0 : part.y + 1
+                } else {
+                    part.y = part.y + 1 >= tela.height ? endGame(modes.mode) : part.y + 1
+                }
             },
 
             ArrowLeft (part) {
-                part.x = part.x - 1 < 0 ? tela.width - 1 : part.x - 1  
                 part.move = 'ArrowLeft'
                 state.dontAccept = part.name === 'part0' ? 'ArrowRight' : state.dontAccept
+
+                if (state.wall) {
+                    part.x = part.x - 1 < 0 ? tela.width - 1 : part.x - 1  
+                } else {
+                    part.x = part.x - 1 < 0 ? endGame(modes.mode) : part.x - 1  
+                }
             },
 
             ArrowRight (part) {
-                part.x = part.x + 1 >= tela.width ? 0 : part.x + 1
                 part.move = 'ArrowRight'
                 state.dontAccept = part.name === 'part0' ? 'ArrowLeft' : state.dontAccept
+
+                if (state.wall) {
+                    part.x = part.x + 1 >= tela.width ? 0 : part.x + 1
+                } else {
+                    part.x = part.x + 1 >= tela.width ? endGame(modes.mode) : part.x + 1
+                }
             },
         }
 
@@ -71,7 +95,7 @@ export default function newGame (tela) {
             for (const partdId in snake.parts) {
                 const part = snake.parts[partdId]
                 if ( part.name !== part0.name && part.x === part0.x && part.y === part0.y ) {
-                    endGame(state.mode)
+                    endGame(modes.mode)
                     break
                 }
             }
@@ -189,21 +213,25 @@ export default function newGame (tela) {
 
     async function endGame(command) {
 
-        const modes = {
+        const newModes = {
             easy () {
                 state.timer = 500
+                state.wall = true
             },
 
             normal () {
                 state.timer = 250
+                state.wall = true
             },
 
             hard () {
                 state.timer = 100
+                state.wall = true
             },
 
             hardcore () {
                 state.timer = 50
+                state.wall = false
             }
         }
 
@@ -229,12 +257,18 @@ export default function newGame (tela) {
         state.intervalVerify = null
         state.valuePart = 2
         state.dontAccept = null
-        state.mode = command
 
-        const mode = modes[command]
-        mode()
+        if (modes.mode !== command) {
+            modes.mode = command
 
-        score.best = score.current > score.best ? score.current : score.best
+            const mode = newModes[command]
+            mode()
+
+            score.best = 0
+        } else {
+            score.best = score.current > score.best ? score.current : score.best
+        }
+        
         score.current = 0
         
     }
@@ -244,7 +278,8 @@ export default function newGame (tela) {
         endGame,
         snake,
         fruits,
-        score
+        score, 
+        modes
     }
 
 }

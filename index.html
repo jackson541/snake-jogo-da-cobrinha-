@@ -30,6 +30,7 @@
         <h1 id="score"></h1>
         <h1 id="best-score"></h1>
         <p>Obs: a fruta pode aparecer em qualquer lugar, <br> incluse no corpo da cobra!</p>
+        <p id="pHard"></p>
         <h2>Modos</h2>
         <div>
             <button id="easy">Easy</button>
@@ -48,6 +49,7 @@
         const tela = document.getElementById('tela')
         const score = document.getElementById('score')
         const bestScore = document.getElementById('best-score')
+        const paragraph = document.getElementById('pHard')
 
         const escutarTeclado = newEscutarTeclado(document)
         const game = newGame(tela)
@@ -63,7 +65,7 @@
         hard.addEventListener('click', () => (game.endGame('hard')))
         hardcore.addEventListener('click', () => (game.endGame('hardcore')))
 
-        const renderGame = newRenderGame (tela, game, score, bestScore)
+        const renderGame = newRenderGame (tela, game, score, bestScore, paragraph)
         
 
     </script>
